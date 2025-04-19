@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firefly Synchronization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<script>
+let fireflies = [];
+let numFireflies = 50;
+let syncStrength = 0.01;  // Speed of synchronization
+let randomMovementStrength = 0.2;  // Movement randomness
+
+function setup() {
+    createCanvas(windowWidth, windowHeight, WEBGL);
+    for (let i = 0; i < numFireflies; i++) {
+        fireflies.push(new Firefly(random(width), random(height), random(-500, 500)));
+    }
+}
+
+function draw() {
+    background(0, 0, 50);  // Dark blue background for space feel
+    rotateX(frameCount * 0.01);
+    rotateY(frameCount * 0.01);
+
+    // Update and display each firefly
+    fireflies.forEach(firefly => {
+        firefly.update();
+        firefly.display();
+    });
+
+    // Synchronization: Bring fireflies' phases together
+    synchronizeFireflies();
+}
+
+// Synchronize all fireflies' phases to create blinking sync
+function synchronizeFireflies() {
+    let avgPhase = 0;
+    fireflies.forEach(firefly => {
+        avgPhase += firefly.phase;
+    });
+    avgPhase /= fireflies.length;
+
+    // Adjust fireflies' phase towards the average phase for synchronization
+    fireflies.forEach(firefly => {
+        let phaseDifference = avgPhase - firefly.phase;
+        firefly.phase += phaseDifference * syncStrength;
+    });
+}
+
+// Firefly class
+class Firefly {
+    constructor(x, y, z) {
+        this.pos = createVector(x, y, z);
+        this.phase = random(1); // Random starting phase
+        this.size = 8;  // Size of the firefly
+        this.brightness = 0;
+        this.angle = random(TWO_PI);  // Movement angle
+        this.speed = random(0.5, 1.5);  // Movement speed
+    }
+
+    update() {
+        // Move randomly within the 3D space
+        this.pos.x += cos(this.angle) * this.speed;
+        this.pos.y += sin(this.angle) * this.speed;
+
+        // Ensure they stay within the screen bounds (wrap around)
+        if (this.pos.x > width / 2) this.pos.x = -width / 2;
+        if (this.pos.x < -width / 2) this.pos.x = width / 2;
+        if (this.pos.y > height / 2) this.pos.y = -height / 2;
+        if (this.pos.y < -height / 2) this.pos.y = height / 2;
+
+        // Update the phase (firefly flicker using sine wave)
+        this.brightness = 127 * (sin(TWO_PI * this.phase) + 1);  // Smooth sine wave for blinking
+
+        if (this.phase >= 1) {
+            this.phase = 0;  // Reset phase when it reaches 1
+        } else {
+            this.phase += 0.01;  // Slowly increase the phase
+        }
+    }
+
+    display() {
+        push();
+        translate(this.pos.x, this.pos.y, this.pos.z);
+        noStroke();
+        fill(255, 255, 0, this.brightness);  // Yellow glow with transparency
+        sphere(this.size);  // Draw the firefly as a glowing sphere
+        pop();
+    }
+}
+</script>
+</body>
+</html>
