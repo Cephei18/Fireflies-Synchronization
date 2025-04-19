@@ -67,7 +67,7 @@ This project is inspired by:
 
 ## 🧑‍🎓 Creator
 
-👋 Made with curiosity by **[Your Name]**, a student exploring the beauty of physics through code and visuals.  
+👋 Made with curiosity by **Gopika Chauhan**, a student exploring the beauty of physics through code and visuals.  
 Project for **Waves & Oscillations** assignment.
 
 ---
